@@ -1,18 +1,18 @@
 import { MantineProvider } from "@mantine/core";
 
-import { ApiKeyProvider } from "./github-utils/ApikeyProvider";
+import { GHAccessTokenProvider } from "./github-utils/GHAccessTokenProvider";
 import Page from "./page/Page";
 
 function App() {
   return (
     <MantineProvider
-      theme={{ colorScheme: "dark" }}
+      theme={{ colorScheme: "dark", primaryColor: "yellow" }}
       defaultColorScheme="dark"
       withGlobalClasses
     >
-      <ApiKeyProvider>
+      <GHAccessTokenProvider>
         <Page />
-      </ApiKeyProvider>
+      </GHAccessTokenProvider>
     </MantineProvider>
   );
 }

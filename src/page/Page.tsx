@@ -1,12 +1,11 @@
 import { AppShell, Button, Center, Group, TextInput } from "@mantine/core";
 
 import {
-  ApiKeyProvider,
-  useGithubApiKey,
-} from "../github-utils/ApikeyProvider";
+    useGithubAccessToken
+} from "../github-utils/GHAccessTokenProvider";
 
 const Page = () => {
-  const apiKey = useGithubApiKey();
+  const accessToken = useGithubAccessToken();
   return (
     <AppShell
       header={{ height: 60 }}
@@ -27,7 +26,7 @@ const Page = () => {
         </form>
       </AppShell.Header>
 
-      <AppShell.Main>Api key is {apiKey ?? "undefined"}</AppShell.Main>
+      <AppShell.Main>Access token is {accessToken ?? "undefined"}</AppShell.Main>
     </AppShell>
   );
 };
