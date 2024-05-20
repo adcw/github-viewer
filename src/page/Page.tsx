@@ -1,11 +1,12 @@
 import { AppShell, Button, Center, Group, TextInput } from "@mantine/core";
 
-import {
-    useGithubAccessToken
-} from "../github-utils/GHAccessTokenProvider";
+import { useGithubAccessToken } from "../github-utils/GHAccessTokenProvider";
+import { Octokit } from "octokit";
+import { useEffect } from "react";
 
 const Page = () => {
   const accessToken = useGithubAccessToken();
+
   return (
     <AppShell
       header={{ height: 60 }}
@@ -26,7 +27,9 @@ const Page = () => {
         </form>
       </AppShell.Header>
 
-      <AppShell.Main>Access token is {accessToken ?? "undefined"}</AppShell.Main>
+      <AppShell.Main>
+        Access token is {accessToken ?? "undefined"}
+      </AppShell.Main>
     </AppShell>
   );
 };
