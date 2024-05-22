@@ -1,40 +1,46 @@
-import {
-  AppShell,
-  Button,
-  Center,
-  Group,
-  TextInput,
-  Text,
-  Container,
-} from "@mantine/core";
+import { AppShell, Button, Group, TextInput } from "@mantine/core";
 
+import AuthUserInfo from "../components/AuthUserInfo";
+import { useCallback, useEffect, useRef, useState } from "react";
+import SearchedUserInfo from "../components/search-result/UserPage";
+import UserModel from "../types/user_model";
 import { useGithubAccessToken } from "../github-utils/GHAccessTokenProvider";
-import { Octokit } from "octokit";
-import { useCallback, useEffect, useState } from "react";
+import { Octokit, RequestError } from "octokit";
 
 const Page = () => {
   const accessToken = useGithubAccessToken();
+  const searchInputRef = useRef<HTMLInputElement | undefined>(undefined);
 
-  const [userData, setUserData] = useState(undefined);
+  const [searchResult, setSearchResult] = useState<
+    UserModel | undefined | null
+  >(undefined);
 
-  const getUser = useCallback(
-    async (at: string) => {
-      try {
-        const octokit = new Octokit({ auth: at });
-        const res = await octokit.rest.users.getAuthenticated();
+  const handleSearch = async () => {
+    const client = getClient();
+    const searchString = searchInputRef.current.value;
 
-        setUserData(res.data);
-      } catch (error) {
-        console.log("ERR\n" + error);
-        return {};
-      }
-    },
-    [accessToken]
-  );
+    try {
+      const res = await client.request(`GET /users/${searchString}`, {
+        username: "USERNAME",
+        headers: {
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+      });
 
-  useEffect(() => {
-    getUser(accessToken);
-  }, [accessToken, getUser]);
+      console.log(res.data);
+      setSearchResult(res.data);
+    } catch (error) {
+      // Not found
+      if (error instanceof RequestError) {
+        setSearchResult(null);
+      } else throw error;
+    }
+  };
+
+  const getClient = useCallback(() => {
+    const client = new Octokit({ auth: accessToken });
+    return client;
+  }, [accessToken]);
 
   return (
     <AppShell
@@ -47,18 +53,21 @@ const Page = () => {
     >
       <AppShell.Header>
         <Group pt="sm" gap="md" grow>
-          <Group gap={4}>
-            <Text>Authenticated as</Text>
-            <Text color="yellow">{userData?.login}</Text>
-          </Group>
+          <AuthUserInfo />
           <Group gap={0}>
-            <TextInput w={300} placeholder="Enter github username" />
-            <Button>Search</Button>
+            <TextInput
+              ref={searchInputRef}
+              w={300}
+              placeholder="Enter github username"
+            />
+            <Button onClick={handleSearch}>Search</Button>
           </Group>
         </Group>
       </AppShell.Header>
 
-      <AppShell.Main></AppShell.Main>
+      <AppShell.Main>
+        <SearchedUserInfo result={searchResult} getClient={getClient}/>
+      </AppShell.Main>
     </AppShell>
   );
 };
