@@ -1,4 +1,4 @@
-import { Button, Modal, Stack, TextInput, Loader, Center } from "@mantine/core";
+import { Button, Modal, Stack, TextInput } from "@mantine/core";
 import { useDisclosure, useLocalStorage } from "@mantine/hooks";
 import { Octokit } from "octokit";
 import {
@@ -40,7 +40,6 @@ const testToken = async (token: string): Promise<boolean> => {
     await octokit.rest.users.getAuthenticated();
     return true;
   } catch (error) {
-    console.log("invalid token");
     return false;
   }
 };
@@ -66,8 +65,6 @@ export const GHAccessTokenProvider: React.FC<GHAccessTokenProviderProps> = ({
       const isValid = await testToken(accessToken);
       if (!isValid) {
         open();
-      } else {
-        // setLoading(false);
       }
     }
     if (!accessToken) {
@@ -86,20 +83,11 @@ export const GHAccessTokenProvider: React.FC<GHAccessTokenProviderProps> = ({
 
     if (valid) {
       setAccessToken(enteredToken);
-      // setLoading(false);
       close();
     } else {
       setError("Invalid API key. Try again.");
     }
   };
-
-  // if (loading) {
-  //   return (
-  //     <Center style={{ height: "100vh" }}>
-  //       <Loader />
-  //     </Center>
-  //   );
-  // }
 
   return (
     <GHAccessTokenContext.Provider
@@ -128,6 +116,9 @@ export const GHAccessTokenProvider: React.FC<GHAccessTokenProviderProps> = ({
             label="Please enter your GitHub API key:"
             description="In order to fetch data, we need your API key. It will be stored in the local storage."
             placeholder="Eg. sdefefsefefs"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSubmit();
+            }}
           />
 
           <Button variant="light" onClick={handleSubmit}>

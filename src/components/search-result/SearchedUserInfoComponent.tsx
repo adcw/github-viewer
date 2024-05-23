@@ -5,7 +5,7 @@ import {
   Center,
   Divider,
   Group,
-  Overlay,
+  ScrollArea,
   Skeleton,
   Stack,
   Text,
@@ -18,18 +18,22 @@ import { useCallback, useEffect, useState } from "react";
 import RepoModel from "../../types/repo_model";
 import UserModel from "../../types/user_model";
 import RepoTable from "./RepoElement";
+import TotalRepoStatistics from "../../types/total_repo_statistics";
+import DateText from "../dates/DateText";
 
-export interface SearchedUserInfoProps {
+export interface SearchedUserInfoComponentProps {
   result: UserModel;
   getClient: () => Octokit;
 }
 
-const SearchedUserInfo = ({
+const SearchedUserInfoComponent = ({
   result: user,
   getClient,
-}: SearchedUserInfoProps) => {
+}: SearchedUserInfoComponentProps) => {
   const [repos, setRepos] = useState<RepoModel[] | undefined>(undefined);
-  const { ref, hovered } = useHover();
+  const [totalStatistics, setTotalStatistics] = useState<
+    TotalRepoStatistics | undefined
+  >(undefined);
 
   const getRepos = useCallback(async () => {
     if (user === undefined) return;
@@ -38,7 +42,7 @@ const SearchedUserInfo = ({
 
     try {
       const res = await client.request(`GET ${user.repos_url}`);
-      console.log(res.data);
+      // console.log(res.data);
       setRepos(res.data);
     } catch (error) {
       console.error(error);
@@ -46,7 +50,18 @@ const SearchedUserInfo = ({
   }, [user?.id]);
 
   useEffect(() => {
+    if (repos)
+      setTotalStatistics({
+        total_stars: repos.reduce(
+          (prev, curr) => prev + curr.stargazers_count,
+          0
+        ),
+      });
+  }, [repos]);
+
+  useEffect(() => {
     setRepos(undefined);
+    setTotalStatistics(undefined);
     if (user === null) return;
     getRepos();
   }, [user?.id]);
@@ -78,11 +93,11 @@ const SearchedUserInfo = ({
   return (
     <Group grow align="flex-start">
       <Card mih={400} maw="fit-content">
-        <Stack w={250}>
+        <Stack w={300}>
           <Group wrap="nowrap" align="flex-start">
-            <div ref={ref}>
+            <div>
               <Anchor href={user.html_url} target="_blank">
-                <Avatar src={user.avatar_url} size={94} radius="md"/>
+                <Avatar src={user.avatar_url} size={94} radius="md" />
               </Anchor>
             </div>
 
@@ -101,6 +116,18 @@ const SearchedUserInfo = ({
                 {user.login}
               </Text>
 
+              <Stack gap={0}>
+                <Text fz="xs" c="dimmed" fw={500}>
+                  Created at
+                </Text>
+                <DateText
+                  fz="xs"
+                  c="dimmed"
+                  fw={500}
+                  date_string={user.created_at}
+                />
+              </Stack>
+
               {user.email ? (
                 <Group wrap="nowrap" gap={10} mt={3}>
                   <IconAt stroke={1.5} size="1rem" />
@@ -114,16 +141,25 @@ const SearchedUserInfo = ({
             </Stack>
           </Group>
 
-          <Stack h={100} gap={0} align="stretch" justify="space-around">
+          <Stack h={150} gap={0} align="stretch" justify="space-around">
             <Divider />
             {user.bio ? (
-              <Text>{user.bio}</Text>
+              <ScrollArea>
+                <Text>{user.bio}</Text>
+              </ScrollArea>
             ) : (
               <Text c="dimmed" fs="italic">
                 No bio provided
               </Text>
             )}
             <Divider />
+          </Stack>
+
+          <Stack gap={8}>
+            <Group justify="space-between">
+              <Text>Total stars:</Text>
+              <Text c="yellow">{totalStatistics?.total_stars}</Text>
+            </Group>
           </Stack>
         </Stack>
       </Card>
@@ -150,9 +186,11 @@ const SearchedUserInfo = ({
         )}
 
         {repos !== undefined && repos.length === 0 ? (
-          <Title order={4} c="dark.2">
-            No repositories found.
-          </Title>
+          <Center>
+            <Title order={3} c="dark.2">
+              No repositories found.
+            </Title>
+          </Center>
         ) : (
           ""
         )}
@@ -161,4 +199,4 @@ const SearchedUserInfo = ({
   );
 };
 
-export default SearchedUserInfo;
+export default SearchedUserInfoComponent;

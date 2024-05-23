@@ -1,8 +1,7 @@
-import { Table, Text, Anchor, Tooltip, Group } from "@mantine/core";
-import RepoModel from "../../types/repo_model";
-import { useHover } from "@mantine/hooks";
+import { Anchor, Group, Pill, Table, Text, Tooltip } from "@mantine/core";
 import { IconExternalLink, IconStar } from "@tabler/icons-react";
-import { useEffect, useRef } from "react";
+import RepoModel from "../../types/repo_model";
+import DateText from "../dates/DateText";
 
 export interface RepoElementProps {
   repo: RepoModel;
@@ -15,15 +14,30 @@ const RepoElement = ({ repo }: RepoElementProps) => {
         <Text py="xs">{repo.name}</Text>
       </td>
       <td>
-        <Text py="xs">{repo.created_at}</Text>
+        <Group gap={4}>
+          <Text size="xs" c="dimmed">
+            Created at:
+          </Text>
+          <DateText
+            size="xs"
+            c="dimmed"
+            py="xs"
+            date_string={repo.created_at}
+          />
+        </Group>
+      </td>
+      <td>
+        <Group miw="300" gap="xs">
+          {repo.topics.map((v, k) => (
+            <Pill key={k} bg="dark.6" size="xs">
+              {v}
+            </Pill>
+          ))}
+        </Group>
       </td>
       <td>
         <Group gap={4}>
-          <Anchor
-            py="xs"
-            href={repo.stargazers_url}
-            target="_blank"
-          >
+          <Anchor py="xs" href={repo.stargazers_url} target="_blank">
             <Tooltip label="Stargazers">
               <IconStar height={16} />
             </Tooltip>
@@ -51,6 +65,7 @@ const RepoTable = ({ repos }: RepoTableProps) => {
     <Table>
       <thead>
         <tr>
+          <th></th>
           <th></th>
           <th></th>
           <th></th>

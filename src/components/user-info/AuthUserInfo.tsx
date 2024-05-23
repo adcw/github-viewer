@@ -2,7 +2,7 @@ import { Anchor, Group, Text } from "@mantine/core";
 
 import { Octokit } from "octokit";
 import { useCallback, useEffect, useState } from "react";
-import { useGithubAccessToken } from "../github-utils/GHAccessTokenProvider";
+import { useGithubAccessToken } from "../../github-utils/GHAccessTokenProvider";
 
 const AuthUserInfo = () => {
   const { accessToken, openModal } = useGithubAccessToken();
@@ -17,7 +17,6 @@ const AuthUserInfo = () => {
 
         setUserData(res.data);
       } catch (error) {
-        console.log("ERR\n" + error);
         return {};
       }
     },

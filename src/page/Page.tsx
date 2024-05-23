@@ -1,23 +1,30 @@
 import { AppShell, Button, Group, TextInput } from "@mantine/core";
 
-import AuthUserInfo from "../components/AuthUserInfo";
-import { useCallback, useEffect, useRef, useState } from "react";
-import SearchedUserInfo from "../components/search-result/UserPage";
-import UserModel from "../types/user_model";
-import { useGithubAccessToken } from "../github-utils/GHAccessTokenProvider";
 import { Octokit, RequestError } from "octokit";
+import { useCallback, useRef, useState } from "react";
+import SearchedUserInfoComponent from "../components/search-result/SearchedUserInfoComponent";
+import { useGithubAccessToken } from "../github-utils/GHAccessTokenProvider";
+import UserModel from "../types/user_model";
+import AuthUserInfo from "../components/user-info/AuthUserInfo";
 
 const Page = () => {
-  const { accessToken, openModal } = useGithubAccessToken();
+  const { accessToken } = useGithubAccessToken();
   const searchInputRef = useRef<HTMLInputElement | undefined>(undefined);
+  const [inputError, setInputError] = useState(null);
 
   const [searchResult, setSearchResult] = useState<
     UserModel | undefined | null
   >(undefined);
 
   const handleSearch = async () => {
-    const client = getClient();
     const searchString = searchInputRef.current.value;
+
+    if (searchString.length < 1) {
+      setInputError("Type at least a character.");
+      return;
+    }
+
+    const client = getClient();
 
     try {
       const res = await client.request(`GET /users/${searchString}`, {
@@ -33,7 +40,7 @@ const Page = () => {
       // Not found
       if (error instanceof RequestError) {
         setSearchResult(null);
-      } else throw error;
+      }
     }
   };
 
@@ -44,7 +51,7 @@ const Page = () => {
 
   return (
     <AppShell
-      header={{ height: 60 }}
+      header={{ height: 80 }}
       navbar={{
         width: 0,
         breakpoint: 0,
@@ -54,12 +61,17 @@ const Page = () => {
       <AppShell.Header>
         <Group pt={12} pb={18} gap="md" mx="xl" grow justify="space-between">
           <AuthUserInfo />
-          <Group gap={0} justify="flex-end">
+          <Group gap={0} justify="flex-end" align="flex-start">
             <TextInput
+              error={inputError}
               minLength={1}
               ref={searchInputRef}
               w={300}
               placeholder="Enter github username"
+              onChange={() => setInputError(null)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSearch();
+              }}
             />
             <Button onClick={handleSearch}>Search</Button>
           </Group>
@@ -67,7 +79,10 @@ const Page = () => {
       </AppShell.Header>
 
       <AppShell.Main>
-        <SearchedUserInfo result={searchResult} getClient={getClient} />
+        <SearchedUserInfoComponent
+          result={searchResult}
+          getClient={getClient}
+        />
       </AppShell.Main>
     </AppShell>
   );
