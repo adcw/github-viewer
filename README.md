@@ -1,6 +1,8 @@
 A simple toy app using [github rest api](https://docs.github.com/en/rest?apiVersion=2022-11-28)
 
-![alt text](https://github.com/adcw/github-viewer/blob/master/previews/1.png)
+![Preview 1](https://github.com/adcw/github-viewer/blob/master/previews/2.png)
+![Preview 2](https://github.com/adcw/github-viewer/blob/master/previews/1.png)
+
 
 The ui created with [MantineUI](https://mantine.dev/)
 
