@@ -1,11 +1,5 @@
 A simple toy app using [github rest api](https://docs.github.com/en/rest?apiVersion=2022-11-28)
-
-![Preview 1](https://github.com/adcw/github-viewer/blob/master/previews/2.png)
-![Preview 2](https://github.com/adcw/github-viewer/blob/master/previews/1.png)
-
-
 The ui created with [MantineUI](https://mantine.dev/)
-
 
 # Instalation and running
 
@@ -15,3 +9,8 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 2. Run `npm start` to start dev server.
 
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+# Some preview images
+
+![Preview 1](https://github.com/adcw/github-viewer/blob/master/previews/2.png)
+![Preview 2](https://github.com/adcw/github-viewer/blob/master/previews/1.png)
