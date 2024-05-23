@@ -1,25 +1,23 @@
 import {
-  Grid,
-  Card,
-  Title,
-  Stack,
-  Table,
-  Group,
+  Anchor,
   Avatar,
-  Text,
-  Paper,
+  Card,
+  Center,
   Divider,
-  ScrollArea,
-  Loader,
+  Group,
+  Overlay,
   Skeleton,
+  Stack,
+  Text,
+  Title,
 } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
-import UserModel from "../../types/user_model";
-import { IconPhoneCall, IconAt } from "@tabler/icons-react";
-import { useCallback, useEffect, useState } from "react";
+import { useHover, useMediaQuery } from "@mantine/hooks";
+import { IconAt } from "@tabler/icons-react";
 import { Octokit } from "octokit";
+import { useCallback, useEffect, useState } from "react";
 import RepoModel from "../../types/repo_model";
-import RepoElement from "./RepoElement";
+import UserModel from "../../types/user_model";
+import RepoTable from "./RepoElement";
 
 export interface SearchedUserInfoProps {
   result: UserModel;
@@ -31,10 +29,11 @@ const SearchedUserInfo = ({
   getClient,
 }: SearchedUserInfoProps) => {
   const [repos, setRepos] = useState<RepoModel[] | undefined>(undefined);
-
-  const isMobile = useMediaQuery("(max-width: 755px)");
+  const { ref, hovered } = useHover();
 
   const getRepos = useCallback(async () => {
+    if (user === undefined) return;
+
     const client = getClient() as Octokit;
 
     try {
@@ -53,63 +52,98 @@ const SearchedUserInfo = ({
   }, [user?.id]);
 
   if (user === null) {
-    return <>User not found</>;
+    return (
+      <Group grow align="flex-center" py="xl">
+        <Center>
+          <Title c="dimmed" fs="italic" order={3}>
+            User not found
+          </Title>
+        </Center>
+      </Group>
+    );
   }
 
   if (user === undefined) {
-    return <>Go ahead and search</>;
+    return (
+      <Group grow align="flex-center" py="xl">
+        <Center>
+          <Title c="dimmed" fs="italic" order={3}>
+            Use the searchbar on the top to find github users by name
+          </Title>
+        </Center>
+      </Group>
+    );
   }
 
   return (
     <Group grow align="flex-start">
       <Card mih={400} maw="fit-content">
-        <Group wrap="nowrap">
-          <Avatar src={user.avatar_url} size={94} radius="md" />
-          <div>
-            {user.name ? (
-              <Group wrap="nowrap" gap={10} mt={3}>
-                <Text fz="xs" c="dimmed">
-                  {user.name}
-                </Text>
-              </Group>
-            ) : (
-              <></>
-            )}
+        <Stack w={250}>
+          <Group wrap="nowrap" align="flex-start">
+            <div ref={ref}>
+              <Anchor href={user.html_url} target="_blank">
+                <Avatar src={user.avatar_url} size={94} radius="md"/>
+              </Anchor>
+            </div>
 
-            <Text fz="lg" fw={500}>
-              {user.login}
-            </Text>
+            <Stack justify="flex-end" gap="xs">
+              {user.name ? (
+                <Group wrap="nowrap" gap={10} mt={3}>
+                  <Text fz="xs" c="dimmed">
+                    {user.name}
+                  </Text>
+                </Group>
+              ) : (
+                <></>
+              )}
 
-            {user.email ? (
-              <Group wrap="nowrap" gap={10} mt={3}>
-                <IconAt stroke={1.5} size="1rem" />
-                <Text fz="xs" c="dimmed">
-                  {user.email}
-                </Text>
-              </Group>
+              <Text fz="lg" fw={500}>
+                {user.login}
+              </Text>
+
+              {user.email ? (
+                <Group wrap="nowrap" gap={10} mt={3}>
+                  <IconAt stroke={1.5} size="1rem" />
+                  <Text fz="xs" c="dimmed">
+                    {user.email}
+                  </Text>
+                </Group>
+              ) : (
+                <></>
+              )}
+            </Stack>
+          </Group>
+
+          <Stack h={100} gap={0} align="stretch" justify="space-around">
+            <Divider />
+            {user.bio ? (
+              <Text>{user.bio}</Text>
             ) : (
-              <></>
+              <Text c="dimmed" fs="italic">
+                No bio provided
+              </Text>
             )}
-          </div>
-        </Group>
+            <Divider />
+          </Stack>
+        </Stack>
       </Card>
       <Group grow>
-        {repos === undefined ? 
-        <Stack gap={0}>
-          {[0, 1, 2, 3, 4].map((v, k) => (
-            <Skeleton key={k} height={60} mt={6} width="100%" />
-          ))}
-        </Stack>: ""}
-
+        {repos === undefined ? (
+          <Stack gap={0}>
+            {[0, 1, 2, 3, 4].map((v, k) => (
+              <Skeleton key={k} height={60} mt={6} width="100%" />
+            ))}
+          </Stack>
+        ) : (
+          ""
+        )}
 
         {repos !== undefined && repos.length > 0 ? (
           <Stack gap={0}>
             <Title order={4} mb="md">
               Repositories owned by the user:
             </Title>
-            {repos.map((r) => {
-              return <RepoElement key={r.id} repo={r} />;
-            })}
+            <RepoTable repos={repos} />
           </Stack>
         ) : (
           ""

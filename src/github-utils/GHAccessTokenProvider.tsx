@@ -12,13 +12,14 @@ import {
 
 export interface GHAccessTokenInterface {
   accessToken: string;
+  openModal: () => void;
 }
 
 const GHAccessTokenContext = createContext<GHAccessTokenInterface | undefined>(
   undefined
 );
 
-export const useGithubAccessToken = (): string => {
+export const useGithubAccessToken = (): GHAccessTokenInterface => {
   const context = useContext(GHAccessTokenContext);
 
   if (context === undefined) {
@@ -27,7 +28,7 @@ export const useGithubAccessToken = (): string => {
     );
   }
 
-  return context.accessToken;
+  return context;
 };
 
 const testToken = async (token: string): Promise<boolean> => {
@@ -56,7 +57,6 @@ export const GHAccessTokenProvider: React.FC<GHAccessTokenProviderProps> = ({
     defaultValue: undefined,
   });
 
-  const [loading, setLoading] = useState(true);
   const [opened, { open, close }] = useDisclosure(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -67,10 +67,10 @@ export const GHAccessTokenProvider: React.FC<GHAccessTokenProviderProps> = ({
       if (!isValid) {
         open();
       } else {
-        setLoading(false);
+        // setLoading(false);
       }
     }
-    if (!accessToken && !loading) {
+    if (!accessToken) {
       open();
     }
   }, [accessToken, open]);
@@ -86,23 +86,25 @@ export const GHAccessTokenProvider: React.FC<GHAccessTokenProviderProps> = ({
 
     if (valid) {
       setAccessToken(enteredToken);
-      setLoading(false);
+      // setLoading(false);
       close();
     } else {
       setError("Invalid API key. Try again.");
     }
   };
 
-  if (loading) {
-    return (
-      <Center style={{ height: "100vh" }}>
-        <Loader />
-      </Center>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <Center style={{ height: "100vh" }}>
+  //       <Loader />
+  //     </Center>
+  //   );
+  // }
 
   return (
-    <GHAccessTokenContext.Provider value={{ accessToken }}>
+    <GHAccessTokenContext.Provider
+      value={{ accessToken: accessToken, openModal: open }}
+    >
       <Modal
         opened={opened}
         withCloseButton={false}

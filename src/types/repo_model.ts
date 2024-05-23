@@ -2,6 +2,9 @@ export default interface RepoModel {
     id: number,
     name: string,
     html_url: string,
-    stargazes_count: number,
+
+    stargazers_count: number,
+    stargazers_url: string,
+    
     created_at: string
 }

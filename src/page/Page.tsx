@@ -8,7 +8,7 @@ import { useGithubAccessToken } from "../github-utils/GHAccessTokenProvider";
 import { Octokit, RequestError } from "octokit";
 
 const Page = () => {
-  const accessToken = useGithubAccessToken();
+  const { accessToken, openModal } = useGithubAccessToken();
   const searchInputRef = useRef<HTMLInputElement | undefined>(undefined);
 
   const [searchResult, setSearchResult] = useState<
@@ -52,10 +52,11 @@ const Page = () => {
       padding="md"
     >
       <AppShell.Header>
-        <Group pt="sm" gap="md" grow>
+        <Group pt={12} pb={18} gap="md" mx="xl" grow justify="space-between">
           <AuthUserInfo />
-          <Group gap={0}>
+          <Group gap={0} justify="flex-end">
             <TextInput
+              minLength={1}
               ref={searchInputRef}
               w={300}
               placeholder="Enter github username"
@@ -66,7 +67,7 @@ const Page = () => {
       </AppShell.Header>
 
       <AppShell.Main>
-        <SearchedUserInfo result={searchResult} getClient={getClient}/>
+        <SearchedUserInfo result={searchResult} getClient={getClient} />
       </AppShell.Main>
     </AppShell>
   );

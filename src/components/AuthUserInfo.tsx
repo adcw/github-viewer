@@ -1,11 +1,11 @@
-import { Group, Text } from "@mantine/core";
+import { Anchor, Group, Text } from "@mantine/core";
 
 import { Octokit } from "octokit";
 import { useCallback, useEffect, useState } from "react";
 import { useGithubAccessToken } from "../github-utils/GHAccessTokenProvider";
 
 const AuthUserInfo = () => {
-  const accessToken = useGithubAccessToken();
+  const { accessToken, openModal } = useGithubAccessToken();
 
   const [userData, setUserData] = useState(undefined);
 
@@ -31,7 +31,7 @@ const AuthUserInfo = () => {
   return (
     <Group gap={4}>
       <Text>Authenticated as</Text>
-      <Text color="yellow">{userData?.login}</Text>
+      <Anchor onClick={openModal}>{userData?.login}</Anchor>
     </Group>
   );
 };
